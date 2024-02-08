@@ -7,18 +7,18 @@ import os
 import mysql.connector
 
 
-def filter_datum(fields: List[str], redaction: str, message: str,
-                 separator: str) -> str:
+def filter_datum(
+    fields: List[str], redaction: str, message: str, separator: str
+) -> str:
     """Function that returns the log message obfuscated"""
 
     for i in fields:
-        message = re.sub(f'{i}=.*?{separator}', f'{i}={redaction}{separator}',
-                         message)
+        message = re.sub(f"{i}=.*?{separator}", f"{i}={redaction}{separator}", message)
     return message
 
 
 class RedactingFormatter(logging.Formatter):
-    """ Redacting Formatter class """
+    """Redacting Formatter class"""
 
     REDACTION = "***"
     FORMAT = "[HOLBERTON] %(name)s %(levelname)s %(asctime)-15s: %(message)s"
@@ -33,8 +33,9 @@ class RedactingFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
         """Function to filter values in incoming log records"""
 
-        record.msg = filter_datum(self.fields, self.REDACTION,
-                                  record.getMessage(), self.SEPARATOR)
+        record.msg = filter_datum(
+            self.fields, self.REDACTION, record.getMessage(), self.SEPARATOR
+        )
         return super(RedactingFormatter, self).format(record)
 
 
@@ -62,10 +63,9 @@ def get_db() -> mysql.connector.connection.MySQLConnection:
     host = os.getenv("PERSONAL_DATA_DB_HOST", "localhost")
     db_name = os.getenv("PERSONAL_DATA_DB_NAME")
 
-    cnx = mysql.connector.connection.MySQLConnection(user=username,
-                                                     password=password,
-                                                     host=host,
-                                                     database=db_name)
+    cnx = mysql.connector.connection.MySQLConnection(
+        user=username, password=password, host=host, database=db_name
+    )
     return cnx
 
 
@@ -80,12 +80,12 @@ def main():
     logger = get_logger()
 
     for row in cursor:
-        str_row = ''.join(f'{f}={str(r)}; ' for r, f in zip(row, field_names))
+        str_row = "".join(f"{f}={str(r)}; " for r, f in zip(row, field_names))
         logger.info(str_row.strip())
 
     cursor.close()
     db.close()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
